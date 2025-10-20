@@ -16,7 +16,7 @@ mongoose.connect(MONGO_URI)
     .catch(err => console.error('MongoDB connection error:', err));
 
 // --- 3. MONGOOSE SCHEMA DEFINITION ---
-// Defines the structure for the solar panel data in the database.
+// Defines the structure for the solar panel data in the database. 
 const solarPanelSchema = new mongoose.Schema({
     voltage: { type: Number, default: 0 },
     current: { type: Number, default: 0 },

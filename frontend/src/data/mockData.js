@@ -1,3 +1,4 @@
+// data.js
 export const generatePerformanceData = () => {
   return Array.from({ length: 25 }, (_, i) => {
     const hour = i.toString().padStart(2, '0') + ':00';
@@ -18,12 +19,13 @@ export const generatePerformanceData = () => {
     };
   });
 };
+
 export const initialMockData = {
   voltage: 48.0,
   current: 11.6,
   power: 1.4,
   energyToday: 28.0,
-  dustLevel: 35,
+  dustLevel: 55,
   dustStatus: 'Moderate',
   lastCleaned: '2 hours ago',
   nextCleaning: '14:30 Today',
@@ -35,10 +37,9 @@ export const initialMockData = {
   batteryLevel: 55,
   cleaningProgress: 30,
   performanceData: generatePerformanceData(),
-  cleaningHistory: [ //solar cleaning
+  cleaningHistory: [ // solar cleaning
     { date: "2025-10-01", duration: "30 min", efficiency: 95, status: "Completed" },
     { date: "2025-10-02", duration: "28 min", efficiency: 92, status: "Completed" },
     { date: "2025-10-03", duration: "32 min", efficiency: 98, status: "Completed" },
   ],
 };
-
