@@ -1,5 +1,4 @@
 import React from "react";
-import { Bolt } from "lucide-react";
 import "../App.css";
 import Robot from "../assets/solar img.jpg";
 import video from "../assets/Solar Cleaning.mp4";
@@ -39,11 +38,6 @@ const LiveVideoPanel = ({ progress, robotPosition, batteryLevel, nextCleaning, c
           </span>
         </div>
 
-        {/* <div className="status-detail">
-          <span className="status-label">Next Cleaning</span>
-          <span className="status-value-lg">{nextCleaning}</span>
-        </div> */}
-
         {/* Cleaning History */}
         <div className="cleaning-history-panel">
           <h3 className="Cleaning-History">Cleaning History</h3>
@@ -51,9 +45,11 @@ const LiveVideoPanel = ({ progress, robotPosition, batteryLevel, nextCleaning, c
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Duration</th>
-                <th>Efficiency</th>
+                {/* <th>Duration</th>
+                <th>Efficiency</th> */}
                 <th>Status</th>
+                <th>Created At</th>
+                <th>Updated At</th>
               </tr>
             </thead>
             <tbody>
@@ -61,14 +57,16 @@ const LiveVideoPanel = ({ progress, robotPosition, batteryLevel, nextCleaning, c
                 cleaningHistory.map((entry, idx) => (
                   <tr key={idx}>
                     <td>{entry.date}</td>
-                    <td>{entry.duration}</td>
-                    <td>{entry.efficiency}%</td>
+                    {/* <td>{entry.duration}</td>
+                    <td>{entry.efficiency}%</td> */}
                     <td>{entry.status}</td>
+                    <td>{entry.createdAt ? new Date(entry.createdAt).toLocaleString() : "-"}</td>
+                    <td>{entry.updatedAt ? new Date(entry.updatedAt).toLocaleString() : "-"}</td>
                   </tr>
                 ))
               ) : (
                 <tr className="cleaning-history-empty">
-                  <td colSpan="4">No cleaning history available</td>
+                  <td colSpan="6">No cleaning history available</td>
                 </tr>
               )}
             </tbody>

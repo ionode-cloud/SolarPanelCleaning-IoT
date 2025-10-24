@@ -1,6 +1,5 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Download, Wifi, Zap, Bolt, Power, Gauge, TrendingUp, Thermometer } from "lucide-react";
-import { initialMockData } from "./data/mockData";
 import MetricCard from "./components/MetricCard";
 import HourlyStatusCard from "./components/HourlyStatusCard";
 import DustLevelBar from "./components/DustLevelBar";
@@ -8,32 +7,99 @@ import LiveVideoPanel from "./components/LiveVideoPanel";
 import PerformanceChart from "./components/PerformanceChart";
 import "./App.css";
 
+// Initial mock data
+const initialMockData = {
+  voltage: 0,
+  current: 0,
+  power: 0,
+  avgVoltage: 0,
+  avgPower: 0,
+  energyToday: 0,
+  efficiency: 0,
+  temperature: 0,
+  dustStatus: "Unknown",
+  dustLevel: 0,
+  cleaningProgress: 0,
+  robotPosition: "Unknown",
+  batteryLevel: 100,
+  cleaningHistory: [],
+  performanceData: [],
+  lastCleaned: null,
+};
+
 const App = () => {
   const [data, setData] = useState(initialMockData);
 
-  const handleForceClean = useCallback(() => {
-    const now = new Date();
-    const formattedDate = now.toISOString().split("T")[0]; // YYYY-MM-DD format
-    const newEntry = {
-      date: formattedDate,
-      duration: "25 min",
-      efficiency: Math.floor(Math.random() * 5) + 95, // random 95–99%
-      status: "Force Clean",
-    };
+  // Fetch solar data from API every 5 seconds
+  const fetchSolarData = async () => {
+    try {
+      const response = await fetch("https://solarcleaning.ionode.cloud/api/solar-data");
+      const json = await response.json();
 
-    // Update dashboard data
-    setData((prev) => ({
-      ...prev,
-      dustLevel: 0,
-      dustStatus: "Clean",
-      lastCleaned: now.toLocaleString(),
-      cleaningHistory: [newEntry, ...prev.cleaningHistory],
-    }));
+      if (json && json.data) {
+        const latest = json.data;
 
-    console.log("✅ Force cleaning triggered. Data updated.");
+        const newHistoryEntry = {
+          date: new Date(latest.createdAt).toLocaleDateString(),
+          duration: "Live Data",
+          efficiency: latest.efficiency,
+          status: "Automatic Update",
+          createdAt: latest.createdAt,
+          updatedAt: latest.updatedAt,
+        };
+
+        setData(prev => ({
+          ...prev,
+          voltage: latest.voltage,
+          current: latest.current,
+          power: latest.power,
+          avgVoltage: latest.avgVoltage,
+          avgPower: latest.avgPower,
+          energyToday: latest.energyToday,
+          efficiency: latest.efficiency,
+          temperature: latest.temperature,
+          dustStatus: latest.dustStatus?.status || "Unknown",
+          dustLevel: latest.dustStatus?.dustLevel || 0,
+          updatedAt: latest.updatedAt,
+          cleaningHistory: [newHistoryEntry, ...prev.cleaningHistory],
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching live data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchSolarData();
+    const interval = setInterval(fetchSolarData, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  // ✅ Handle data download
+  // Force Clean Function
+ const handleForceClean = useCallback(() => {
+  const now = new Date();
+  const formattedDate = now.toISOString().split("T")[0];
+
+  const newEntry = {
+    date: formattedDate,
+    duration: "25 min",
+    efficiency: Math.floor(Math.random() * 5) + 95,
+    status: "Force Clean",
+    createdAt: now.toISOString(), // original timestamp
+    updatedAt: now.toISOString(), // same initially
+  };
+
+  setData((prev) => ({
+    ...prev,
+    dustLevel: 0,
+    dustStatus: "Clean",
+    lastCleaned: now.toLocaleString(),
+    cleaningHistory: [newEntry, ...prev.cleaningHistory],
+  }));
+}, []);
+
+
+  // Download dashboard data
   const handleDownload = useCallback(() => {
     const dataToDownload = { timestamp: new Date().toISOString(), ...data };
     const jsonString = JSON.stringify(dataToDownload, null, 2);
@@ -130,12 +196,12 @@ const App = () => {
             </div>
           </div>
 
-          {/* ✅ Dust Bar with Force Cleaning */}
+          {/* Dust Level */}
           <DustLevelBar
             percentage={data.dustLevel}
             status={data.dustStatus}
             lastCleaned={data.lastCleaned}
-            onForceClean={handleForceClean} // <-- pass function
+            onForceClean={handleForceClean}
           />
         </div>
 
@@ -146,7 +212,7 @@ const App = () => {
             robotPosition={data.robotPosition}
             batteryLevel={data.batteryLevel}
             nextCleaning={data.nextCleaning}
-            cleaningHistory={data.cleaningHistory} // updated live
+            cleaningHistory={data.cleaningHistory}
           />
         </div>
       </div>

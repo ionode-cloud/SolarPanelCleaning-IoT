@@ -353,7 +353,9 @@
   padding-bottom: 0.75rem;
   margin-bottom: 1rem;
 }
-
+.video-column{
+  max-width: 500px;
+}
 .status-detail {
   display: flex;
   justify-content: space-between;
