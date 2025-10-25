@@ -48,7 +48,7 @@ app.get("/", (req, res) => {
 });
 
 
-/**
+/*
  * @route   POST /solar-data
  * @desc    Create or update the solar panel data.
  * @access  Public
@@ -88,7 +88,7 @@ app.post('/solar-data', async (req, res) => {
 });
 
 
-/**
+/*
  * @route   GET /solar-data
  * @desc    Fetch the latest solar panel data.
  * @access  Public
