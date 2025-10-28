@@ -1,3 +1,4 @@
+
 .dashboard-container {
   min-height: 100vh;
   background-color: #111827;
@@ -240,7 +241,9 @@
   font-weight: bold;
   color: #fff;
 }
-
+.video-column{
+  max-width: 500px;
+}
 .status-detail {
   display: flex;
   justify-content: space-between;
@@ -258,10 +261,16 @@
 
 /* Cleaning History Table */
 .cleaning-history-panel {
+<<<<<<< HEAD
   width: 100%;
   max-height: 450px;
   margin-top: 20px;
   background-color: #1f2937;
+=======
+  max-height: 150px;
+  margin-top: 20px;
+  background-color: #1f2937; 
+>>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7
   padding: 15px;
   border-radius: 12px;
   border: 1px solid #374151;
@@ -376,3 +385,31 @@
     font-size: 0.78rem;
   }
 }
+<<<<<<< HEAD
+=======
+.Cleaning-History{
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    border-bottom: 1px solid #374151;
+}
+
+.force-clean-btn {
+  margin-top: 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+.force-clean-btn:hover {
+  background-color: #2563eb;
+}
+>>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7

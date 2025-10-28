@@ -30,9 +30,12 @@ export const initialMockData = {
   lastCleaned: '2 hours ago',
   nextCleaning: '14:30 Today',
   avgPower: 4.1,
+<<<<<<< HEAD
   AQIIndexwidget:35,
   Climate:'Rainy',
   Moisture: 12,
+=======
+>>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7
   avgVoltage: 47.8,
   efficiency: 92,
   temperature: 28,

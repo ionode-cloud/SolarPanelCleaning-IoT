@@ -31,6 +31,7 @@ const DustLevelBar = ({ percentage, status, lastCleaned, onForceClean }) => {
   else if (currentPercentage > 50) barColor = "#ef4444";
 
   return (
+<<<<<<< HEAD
     <div className="dust-bar">
       <div className="dust-bar-container" style={{ borderColor: "#374151" }}>
         <div className="dust-header">
@@ -39,8 +40,17 @@ const DustLevelBar = ({ percentage, status, lastCleaned, onForceClean }) => {
           <div className="last-cleaned">
             <Clock size={16} style={{ marginRight: "0.25rem" }} /> Last Cleaned: {lastClean}
           </div>
+=======
+    <div className="dust-bar-container" style={{ borderColor: "#374151" }}>
+      <div className="dust-header">
+        <Sun className="dust-icon" size={24} />
+        <div className="dust-title">Dust Status - {currentStatus}</div>
+        <div className="last-cleaned">
+          <Clock size={16} style={{ marginRight: "0.25rem" }} /> Last Cleaned: {lastClean}
+>>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7
         </div>
 
+<<<<<<< HEAD
         <div className="dust-level-label">Dust Level ({currentStatus})</div>
         <div className="progress-wrapper">
           <div className="progress-bg">
@@ -75,7 +85,24 @@ const DustLevelBar = ({ percentage, status, lastCleaned, onForceClean }) => {
           Force Cleaning
         </button>
 
+=======
+      <div className="dust-level-label">Dust Level ({currentStatus})</div>
+      <div className="progress-wrapper">
+        <div className="progress-bg">
+          <div
+            className="progress-bar"
+            style={{ width: `${currentPercentage}%`, backgroundColor: barColor }}
+          ></div>
+        </div>
+        <span className="progress-percentage">{currentPercentage}%</span>
+>>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7
       </div>
+
+      {/* Force Cleaning Button */}
+      <button className="force-clean-btn" onClick={handleForceClean}>
+        <RefreshCcw size={16} style={{ marginRight: "6px" }} />
+        Force Cleaning
+      </button>
     </div>
 
   );
