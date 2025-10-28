@@ -31,32 +31,53 @@ const DustLevelBar = ({ percentage, status, lastCleaned, onForceClean }) => {
   else if (currentPercentage > 50) barColor = "#ef4444";
 
   return (
-    <div className="dust-bar-container" style={{ borderColor: "#374151" }}>
-      <div className="dust-header">
-        <Sun className="dust-icon" size={24} />
-        <div className="dust-title">Dust Status - {currentStatus}</div>
-        <div className="last-cleaned">
-          <Clock size={16} style={{ marginRight: "0.25rem" }} /> Last Cleaned: {lastClean}
+    <div className="dust-bar">
+      <div className="dust-bar-container" style={{ borderColor: "#374151" }}>
+        <div className="dust-header">
+          <Sun className="dust-icon" size={24} />
+          <div className="dust-title">Dust Status - {currentStatus}</div>
+          <div className="last-cleaned">
+            <Clock size={16} style={{ marginRight: "0.25rem" }} /> Last Cleaned: {lastClean}
+          </div>
         </div>
-      </div>
 
-      <div className="dust-level-label">Dust Level ({currentStatus})</div>
-      <div className="progress-wrapper">
-        <div className="progress-bg">
-          <div
-            className="progress-bar"
-            style={{ width: `${currentPercentage}%`, backgroundColor: barColor }}
-          ></div>
+        <div className="dust-level-label">Dust Level ({currentStatus})</div>
+        <div className="progress-wrapper">
+          <div className="progress-bg">
+            <div
+              className="progress-bar"
+              style={{ width: `${currentPercentage}%`, backgroundColor: barColor }}
+            ></div>
+          </div>
+          <span className="progress-percentage">{currentPercentage}%</span>
         </div>
-        <span className="progress-percentage">{currentPercentage}%</span>
-      </div>
 
-      {/* Force Cleaning Button */}
-      <button className="force-clean-btn" onClick={handleForceClean}>
-        <RefreshCcw size={16} style={{ marginRight: "6px" }} />
-        Force Cleaning
-      </button>
+        {/* Force Cleaning Button */}
+
+        <button
+          className="force-clean-btn"
+          style={{
+            padding: "6px 12px",
+            backgroundColor: "rgb(59, 130, 246)",
+            color: "#fff",
+            marginTop:"15px",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            marginBottom: "10px",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px"
+          }}
+          onClick={handleForceClean}
+        >
+          <RefreshCcw size={16} />
+          Force Cleaning
+        </button>
+
+      </div>
     </div>
+
   );
 };
 
