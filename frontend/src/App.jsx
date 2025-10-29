@@ -1,9 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-<<<<<<< HEAD
 import { Download, Wifi, Zap, Bolt, Power, Gauge, TrendingUp, Thermometer, Wind, CloudSun, Droplet, ThermometerSun } from "lucide-react";
-=======
-import { Download, Wifi, Zap, Bolt, Power, Gauge, TrendingUp, Thermometer } from "lucide-react";
->>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7
 import MetricCard from "./components/MetricCard";
 import HourlyStatusCard from "./components/HourlyStatusCard";
 import DustLevelBar from "./components/DustLevelBar";
@@ -21,12 +17,9 @@ const initialMockData = {
   energyToday: 0,
   efficiency: 0,
   temperature: 0,
-<<<<<<< HEAD
   Moisture: 0,
   Climate: 0,
   AQIIndexwidget: 0,
-=======
->>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7
   dustStatus: "Unknown",
   dustLevel: 0,
   cleaningProgress: 0,
@@ -39,23 +32,13 @@ const initialMockData = {
 
 const App = () => {
   const [data, setData] = useState(initialMockData);
-<<<<<<< HEAD
   const fetchSolarData = async () => {
     try {
       const response = await fetch("https://solarcleaning.ionode.cloud/api/solar-data");
       const json = await response.json();
 
-=======
-
-  // Fetch solar data from API every 5 seconds
-  const fetchSolarData = async () => {
-    try {
-      const response = await fetch("https://solarcleaning.ionode.cloud/api/solar-data");
-      const json = await response.json();
-
->>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7
       if (json && json.data) {
-        const latest = json.data;
+        const latest = json.data; //arrary data use [0]
 
         const newHistoryEntry = {
           date: new Date(latest.createdAt).toLocaleDateString(),
@@ -75,12 +58,9 @@ const App = () => {
           avgPower: latest.avgPower,
           energyToday: latest.energyToday,
           efficiency: latest.efficiency,
-<<<<<<< HEAD
           AQIIndexwidget: latest.AQIIndexwidget,
           Moisture: latest.Moisture,
           Climate: latest.Climate,
-=======
->>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7
           temperature: latest.temperature,
           dustStatus: latest.dustStatus?.status || "Unknown",
           dustLevel: latest.dustStatus?.dustLevel || 0,
@@ -92,7 +72,6 @@ const App = () => {
       console.error("Error fetching live data:", error);
     }
   };
-<<<<<<< HEAD
   // Fetch solar data from API every 2 Hour
   useEffect(() => {
     fetchSolarData();
@@ -124,37 +103,6 @@ const App = () => {
       cleaningHistory: [newEntry, ...prev.cleaningHistory],
     }));
   }, []);
-=======
-
-  useEffect(() => {
-    fetchSolarData();
-    const interval = setInterval(fetchSolarData, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Force Clean Function
- const handleForceClean = useCallback(() => {
-  const now = new Date();
-  const formattedDate = now.toISOString().split("T")[0];
-
-  const newEntry = {
-    date: formattedDate,
-    duration: "25 min",
-    efficiency: Math.floor(Math.random() * 5) + 95,
-    status: "Force Clean",
-    createdAt: now.toISOString(), // original timestamp
-    updatedAt: now.toISOString(), // same initially
-  };
-
-  setData((prev) => ({
-    ...prev,
-    dustLevel: 0,
-    dustStatus: "Clean",
-    lastCleaned: now.toLocaleString(),
-    cleaningHistory: [newEntry, ...prev.cleaningHistory],
-  }));
-}, []);
->>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7
 
 
   // Download dashboard data
@@ -217,7 +165,6 @@ const App = () => {
               icon={Gauge}
               color="#2563eb"
             />
-<<<<<<< HEAD
             <MetricCard
               title="AQI"
               value={data.AQIIndexwidget}
@@ -251,10 +198,6 @@ const App = () => {
 
 
 
-=======
-          </div>
-
->>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7
           {/* Hourly Status */}
           <div>
             <h3 className="hourly-status-section-title">Last Hourly Status</h3>
@@ -291,21 +234,12 @@ const App = () => {
           </div>
 
           {/* Dust Level */}
-<<<<<<< HEAD
             <DustLevelBar
               percentage={data.dustLevel}
               status={data.dustStatus}
               lastCleaned={data.lastCleaned}
               onForceClean={handleForceClean}
             />
-=======
-          <DustLevelBar
-            percentage={data.dustLevel}
-            status={data.dustStatus}
-            lastCleaned={data.lastCleaned}
-            onForceClean={handleForceClean}
-          />
->>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7
         </div>
 
         {/* Right Side: Live Feed & Cleaning History */}

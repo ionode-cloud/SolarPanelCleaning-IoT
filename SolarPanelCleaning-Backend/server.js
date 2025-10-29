@@ -26,10 +26,15 @@ const solarPanelSchema = new mongoose.Schema({
     avgVoltage: { type: Number, default: 0 },
     efficiency: { type: Number, default: 0 },
     temperature: { type: Number, default: 0 },
+    aqi : { type : Number, default : 0 },
+    climate : { type : String , default : 'Clean' },
+    moisture : { type : Number , default : 0 },
     dustStatus: {
         status: { type: String, default: 'Clean' }, // Renamed from 'type' to avoid conflict
-        dustLevel: { type: Number, default: 0 }
-    }
+        dustLevel: { type: Number, default: 0 },
+        forceCleaningStatus : {type : Boolean , default : 0}
+    },
+    messageLogs : { type: [String] , default: "" }
 }, {
     // Automatically add `createdAt` and `updatedAt` timestamps
     timestamps: true
@@ -58,33 +63,29 @@ app.get("/", (req, res) => {
  * POST http://localhost:62888/solar-data
  * Body: { "temperature": 35.5, "efficiency": 0.85, "dustStatus": { "status": "Dusty", "dustLevel": 4 } }
  */
-app.post('/solar-data', async (req, res) => {
-    try {
-        // The data to update comes from the request body.
-        const updateData = req.body;
+app.post('/api/solar-data', async (req, res) => {
+  try {
+    const newData = req.body;
 
-        if (Object.keys(updateData).length === 0) {
-            return res.status(400).json({ message: "Request body cannot be empty." });
-        }
-
-        // `findOneAndUpdate` with `upsert: true` is perfect for a monitoring system.
-        // It will update the single document representing the panel's state,
-        // or create it if it doesn't exist yet.
-        const updatedPanelData = await SolarPanel.findOneAndUpdate({}, updateData, {
-            new: true, // Return the modified document
-            upsert: true, // Create a new document if one doesn't exist
-            setDefaultsOnInsert: true // Apply schema defaults on creation
-        });
-
-        res.status(200).json({
-            message: "Data created/updated successfully.",
-            data: updatedPanelData
-        });
-
-    } catch (error) {
-        console.error("Error updating data:", error);
-        res.status(500).json({ message: "Failed to update data.", error: error.message });
+    if (Object.keys(newData).length === 0) {
+      return res.status(400).json({ message: "Request body cannot be empty." });
     }
+
+    // 1️⃣ Create a new document (instead of findOneAndUpdate)
+    const savedData = await SolarPanel.create(newData);
+
+    // 2️⃣ Fetch the latest entry (by creation time or _id)
+    const latestData = await SolarPanel.findOne().sort({ createdAt: -1 }); // assuming you have timestamps in schema
+
+    res.status(201).json({
+      message: "Data saved successfully.",
+      data : latestData
+    });
+
+  } catch (error) {
+    console.error("Error saving data:", error);
+    res.status(500).json({ message: "Failed to save data.", error: error.message });
+  }
 });
 
 
@@ -96,7 +97,7 @@ app.post('/solar-data', async (req, res) => {
  * @example To FETCH data:
  * GET http://localhost:62888/solar-data
  */
-app.get('/solar-data', async (req, res) => {
+app.get('/api/solar-data', async (req, res) => {
     try {
         // Find the single document for the solar panel.
         // Sorting by `updatedAt` ensures you get the latest state if you ever have more than one.
