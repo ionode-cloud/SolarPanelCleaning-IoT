@@ -1,110 +1,90 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sun, Clock, RefreshCcw } from "lucide-react";
 import "../App.css";
 
-const DustLevelBar = ({ percentage, status, lastCleaned, onForceClean }) => {
+const DustLevelBar = ({ percentage, status, lastCleaned, onForceClean, forceCleaningStatus }) => {
   const [currentPercentage, setCurrentPercentage] = useState(percentage);
   const [currentStatus, setCurrentStatus] = useState(status);
   const [lastClean, setLastClean] = useState(lastCleaned);
 
+  // Update component state when parent data changes
+  useEffect(() => {
+    setCurrentPercentage(percentage);
+    setCurrentStatus(status);
+    setLastClean(lastCleaned);
+  }, [percentage, status, lastCleaned]);
+
   // Handle Force Cleaning
   const handleForceClean = () => {
-    setCurrentPercentage(0);
-    setCurrentStatus("Clean");
-    const now = new Date().toLocaleString();
-    setLastClean(now);
-
-    // Notify parent to update history
-    if (onForceClean) {
-      onForceClean({
-        date: now,
-        duration: "3 min",
-        efficiency: 98,
-        status: "Completed (Force Clean)"
-      });
+    if (onForceClean && !forceCleaningStatus) {
+      onForceClean(); // call parent API trigger
     }
   };
 
   // Color logic
   let barColor = "#f59e0b";
-  if (currentPercentage < 20) barColor = "#10b981";
-  else if (currentPercentage > 50) barColor = "#ef4444";
+  if (currentPercentage < 20) barColor = "#10b981"; // green = clean
+  else if (currentPercentage > 50) barColor = "#ef4444"; // red = dirty
 
   return (
-<<<<<<< HEAD
     <div className="dust-bar">
       <div className="dust-bar-container" style={{ borderColor: "#374151" }}>
+        {/* Header */}
         <div className="dust-header">
           <Sun className="dust-icon" size={24} />
           <div className="dust-title">Dust Status - {currentStatus}</div>
           <div className="last-cleaned">
-            <Clock size={16} style={{ marginRight: "0.25rem" }} /> Last Cleaned: {lastClean}
+            <Clock size={16} style={{ marginRight: "0.25rem" }} /> 
+            Last Cleaned: {lastClean || "N/A"}
           </div>
-=======
-    <div className="dust-bar-container" style={{ borderColor: "#374151" }}>
-      <div className="dust-header">
-        <Sun className="dust-icon" size={24} />
-        <div className="dust-title">Dust Status - {currentStatus}</div>
-        <div className="last-cleaned">
-          <Clock size={16} style={{ marginRight: "0.25rem" }} /> Last Cleaned: {lastClean}
->>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7
         </div>
 
-<<<<<<< HEAD
+        {/* Progress Bar */}
         <div className="dust-level-label">Dust Level ({currentStatus})</div>
         <div className="progress-wrapper">
           <div className="progress-bg">
             <div
               className="progress-bar"
-              style={{ width: `${currentPercentage}%`, backgroundColor: barColor }}
+              style={{
+                width: `${currentPercentage}%`,
+                backgroundColor: barColor,
+                transition: "width 0.8s ease-in-out",
+              }}
             ></div>
           </div>
           <span className="progress-percentage">{currentPercentage}%</span>
         </div>
 
         {/* Force Cleaning Button */}
-
         <button
           className="force-clean-btn"
+          onClick={handleForceClean}
+          disabled={forceCleaningStatus}
           style={{
-            padding: "6px 12px",
-            backgroundColor: "rgb(59, 130, 246)",
+            padding: "8px 14px",
+            backgroundColor: forceCleaningStatus ? "#10b981" : "rgb(59,130,246)",
             color: "#fff",
-            marginTop:"15px",
+            fontWeight: 500,
             border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-            marginBottom: "10px",
+            borderRadius: "6px",
+            cursor: forceCleaningStatus ? "not-allowed" : "pointer",
+            marginTop: "15px",
             display: "flex",
             alignItems: "center",
-            gap: "6px"
+            justifyContent: "center",
+            gap: "6px",
+            opacity: forceCleaningStatus ? 0.7 : 1,
+            transition: "background-color 0.3s ease",
           }}
-          onClick={handleForceClean}
         >
-          <RefreshCcw size={16} />
-          Force Cleaning
+          <RefreshCcw
+            size={16}
+            className={forceCleaningStatus ? "spin-animation" : ""}
+          />
+          {forceCleaningStatus ? "Cleaning in Progress..." : "Force Cleaning"}
         </button>
-
-=======
-      <div className="dust-level-label">Dust Level ({currentStatus})</div>
-      <div className="progress-wrapper">
-        <div className="progress-bg">
-          <div
-            className="progress-bar"
-            style={{ width: `${currentPercentage}%`, backgroundColor: barColor }}
-          ></div>
-        </div>
-        <span className="progress-percentage">{currentPercentage}%</span>
->>>>>>> 43312612b118ae56500bf2d7b49b98f0db4fb7a7
       </div>
-
-      {/* Force Cleaning Button */}
-      <button className="force-clean-btn" onClick={handleForceClean}>
-        <RefreshCcw size={16} style={{ marginRight: "6px" }} />
-        Force Cleaning
-      </button>
     </div>
-
   );
 };
 
