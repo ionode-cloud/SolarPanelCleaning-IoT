@@ -54,7 +54,7 @@ const App = () => {
       const json = await response.json();
 
       if (json && json.data) {
-        const latest = json.data;
+        const latest = json.data; //arrary data use [0]
 
         const newHistoryEntry = {
           date: new Date(latest.createdAt).toLocaleDateString(),
@@ -89,7 +89,6 @@ const App = () => {
       console.error("Error fetching live data:", error);
     }
   };
-
   useEffect(() => {
     fetchSolarData();
     const TWO_HOURS = 7200000;
