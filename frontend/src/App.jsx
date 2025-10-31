@@ -1,5 +1,18 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Download, Wifi, Zap, Bolt, Power, Gauge, TrendingUp, Thermometer, Wind, CloudSun, Droplet, ThermometerSun } from "lucide-react";
+import {
+  Download,
+  Wifi,
+  Zap,
+  Bolt,
+  Power,
+  Gauge,
+  TrendingUp,
+  Thermometer,
+  Wind,
+  CloudSun,
+  Droplet,
+  ThermometerSun,
+} from "lucide-react";
 import MetricCard from "./components/MetricCard";
 import HourlyStatusCard from "./components/HourlyStatusCard";
 import DustLevelBar from "./components/DustLevelBar";
@@ -17,9 +30,9 @@ const initialMockData = {
   energyToday: 0,
   efficiency: 0,
   temperature: 0,
-  Moisture: 0,
-  Climate: 0,
-  AQIIndexwidget: 0,
+  aqi: 0,
+  moisture: 0,
+  climate: "Unknown",
   dustStatus: "Unknown",
   dustLevel: 0,
   cleaningProgress: 0,
@@ -28,10 +41,13 @@ const initialMockData = {
   cleaningHistory: [],
   performanceData: [],
   lastCleaned: null,
+  forceCleaningStatus: false,
 };
 
 const App = () => {
   const [data, setData] = useState(initialMockData);
+
+  // Fetch Solar Data
   const fetchSolarData = async () => {
     try {
       const response = await fetch("https://solarcleaning.ionode.cloud/api/solar-data");
@@ -49,7 +65,7 @@ const App = () => {
           updatedAt: latest.updatedAt,
         };
 
-        setData(prev => ({
+        setData((prev) => ({
           ...prev,
           voltage: latest.voltage,
           current: latest.current,
@@ -58,12 +74,13 @@ const App = () => {
           avgPower: latest.avgPower,
           energyToday: latest.energyToday,
           efficiency: latest.efficiency,
-          AQIIndexwidget: latest.AQIIndexwidget,
-          Moisture: latest.Moisture,
-          Climate: latest.Climate,
           temperature: latest.temperature,
+          aqi: latest.aqi,
+          moisture: latest.moisture,
+          climate: latest.climate,
           dustStatus: latest.dustStatus?.status || "Unknown",
           dustLevel: latest.dustStatus?.dustLevel || 0,
+          forceCleaningStatus: latest.dustStatus?.forceCleaningStatus || false,
           updatedAt: latest.updatedAt,
           cleaningHistory: [newHistoryEntry, ...prev.cleaningHistory],
         }));
@@ -72,7 +89,6 @@ const App = () => {
       console.error("Error fetching live data:", error);
     }
   };
-  // Fetch solar data from API every 2 Hour
   useEffect(() => {
     fetchSolarData();
     const TWO_HOURS = 7200000;
@@ -80,30 +96,39 @@ const App = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // ✅ Force Clean Function (POST + Auto Reset)
+  const handleForceClean = async () => {
+    try {
+      // Update data immediately
+      setData((prev) => ({
+        ...prev,
+        dustStatus: "Cleaning",
+        forceCleaningStatus: true,
+      }));
 
-  // Force Clean Function
-  const handleForceClean = useCallback(() => {
-    const now = new Date();
-    const formattedDate = now.toISOString().split("T")[0];
+      // Send POST request to backend
+      const response = await fetch("https://solarcleaning.ionode.cloud/api/solar-data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...data,
+          dustStatus: {
+            status: "Cleaning",
+            dustLevel: data.dustLevel,
+            forceCleaningStatus: true,
+          },
+        }),
+      });
 
-    const newEntry = {
-      date: formattedDate,
-      duration: "25 min",
-      efficiency: Math.floor(Math.random() * 5) + 95,
-      status: "Force Clean",
-      createdAt: now.toISOString(), // original timestamp
-      updatedAt: now.toISOString(), // same initially
-    };
+      const result = await response.json();
+      console.log("Force Cleaning Triggered:", result);
 
-    setData((prev) => ({
-      ...prev,
-      dustLevel: 0,
-      dustStatus: "Clean",
-      lastCleaned: now.toLocaleString(),
-      cleaningHistory: [newEntry, ...prev.cleaningHistory],
-    }));
-  }, []);
-
+      } catch (error) {
+      console.error("Error triggering Force Cleaning:", error);
+    }
+  };
 
   // Download dashboard data
   const handleDownload = useCallback(() => {
@@ -118,7 +143,6 @@ const App = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    console.log("Data download initiated.");
   }, [data]);
 
   return (
@@ -151,98 +175,41 @@ const App = () => {
 
       {/* Main Dashboard */}
       <div className="main-grid">
-        {/* Left Side: Data & Dust */}
         <div className="data-section">
           {/* Metric Cards */}
           <div className="data-cards-grid">
             <MetricCard title="Voltage" value={data.voltage} unit="V" icon={Zap} color="#d97706" />
             <MetricCard title="Current" value={data.current} unit="A" icon={Bolt} color="#059669" />
             <MetricCard title="Power" value={data.power} unit="kW" icon={Power} color="#dc2626" />
-            <MetricCard
-              title="Energy Today"
-              value={data.energyToday}
-              unit="kWh"
-              icon={Gauge}
-              color="#2563eb"
-            />
-            <MetricCard
-              title="AQI"
-              value={data.AQIIndexwidget}
-              unit="°C"
-              icon={Wind}
-              color="#2e4a82ff"
-            />
-            <MetricCard
-              title="Moisture"
-              value={data.Moisture}
-              unit="%"
-              icon={Droplet}
-              color="#775650ff"
-            />
-            <MetricCard
-              title="Climate"
-              value={data.Climate}
-              unit="°C"
-              icon={CloudSun}
-              color="#97afe3ff"
-            />
-            <MetricCard
-              title="Temprature"
-              color="#FFD700"
-              size={15}
-              value={data.temperature}
-              unit="°C"
-              icon={ThermometerSun}
-            />
+            <MetricCard title="Energy Today" value={data.energyToday} unit="kWh" icon={Gauge} color="#2563eb" />
+            <MetricCard title="AQI" value={data.aqi} unit="" icon={Wind} color="#2e4a82ff" />
+            <MetricCard title="Moisture" value={data.moisture} unit="%" icon={Droplet} color="#775650ff" />
+            <MetricCard title="Climate" value={data.climate} unit="" icon={CloudSun} color="#97afe3ff" />
+            <MetricCard title="Temperature" color="#FFD700" value={data.temperature} unit="°C" icon={ThermometerSun} />
           </div>
-
-
 
           {/* Hourly Status */}
           <div>
             <h3 className="hourly-status-section-title">Last Hourly Status</h3>
             <div className="hourly-status-grid">
-              <HourlyStatusCard
-                title="Avg Power (kW)"
-                value={data.avgPower.toFixed(1)}
-                unit="kW"
-                color="#f87171"
-                icon={Power}
-              />
-              <HourlyStatusCard
-                title="Avg Voltage (V)"
-                value={data.avgVoltage.toFixed(1)}
-                unit="V"
-                color="#facc15"
-                icon={Zap}
-              />
-              <HourlyStatusCard
-                title="Efficiency"
-                value={data.efficiency}
-                unit="%"
-                color="#4ade80"
-                icon={TrendingUp}
-              />
-              <HourlyStatusCard
-                title="Temperature"
-                value={data.temperature}
-                unit="°C"
-                color="#60a5fa"
-                icon={Thermometer}
-              />
+              <HourlyStatusCard title="Avg Power (kW)" value={data.avgPower.toFixed(1)} unit="kW" color="#f87171" icon={Power} />
+              <HourlyStatusCard title="Avg Voltage (V)" value={data.avgVoltage.toFixed(1)} unit="V" color="#facc15" icon={Zap} />
+              <HourlyStatusCard title="Efficiency" value={data.efficiency} unit="%" color="#4ade80" icon={TrendingUp} />
+              <HourlyStatusCard title="Temperature" value={data.temperature} unit="°C" color="#60a5fa" icon={Thermometer} />
             </div>
           </div>
 
           {/* Dust Level */}
-            <DustLevelBar
-              percentage={data.dustLevel}
-              status={data.dustStatus}
-              lastCleaned={data.lastCleaned}
-              onForceClean={handleForceClean}
-            />
+          <DustLevelBar
+            percentage={data.dustLevel}
+            status={data.dustStatus}
+            lastCleaned={data.lastCleaned}
+            onForceClean={handleForceClean}
+            forceCleaningStatus={data.forceCleaningStatus}
+          />
         </div>
 
-        {/* Right Side: Live Feed & Cleaning History */}
+        {/* Right Side: Live Feed */}
         <div className="video-column">
           <LiveVideoPanel
             progress={data.cleaningProgress}
